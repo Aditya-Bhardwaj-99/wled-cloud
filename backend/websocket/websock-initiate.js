@@ -5,25 +5,23 @@ class websock{
         this._wss = false
         this._server = server
         this._path = path
-        this._curr_clients = "No clients stored yet"
+        this._curr_clients = {}
     }
 
     _create_server=()=>{
         this._wss = new websocket.server({server:this._server,path:this._path})
     }
 
-    _update_clients=()=>{
-            this._curr_clients = this._wss.clients
+    update_clients=(name,cli)=>{
+            this._curr_clients[name] = cli 
     }
 
     initiate = ()=>{
         this._create_server()
-        this._update_clients()
     }
 
     broadcast = (msg) => {
-        this._update_clients()
-        this._curr_clients.foreach((client)=>{
+        this._wss.clients.foreach((client)=>{
             client.send(msg)
         })
     }
@@ -32,8 +30,12 @@ class websock{
         return this._wss
     }
 
-    getClients=()=>{
-        return this._curr_clients
+    getClientsList=()=>{
+        return Object.keys(this._curr_clients)
+    }
+
+    getClient=(name)=>{
+        return this._curr_clients[name]
     }
 }
 

@@ -21,7 +21,35 @@ app.get('/',(req,res,next)=>{
     }
 })
 
+app.get("/getClients",(req,res,next)=>{
+    try{
+        let clients = wss.getClients()
+        res.json({clients:clients}).status(200)
+    } catch (error) {
+        next(error)
+    }
+})
 
+app.post('/updateValues',(req,res,next)=>{
+    try{
+        let client = req.body.client
+        let data = req.body.data
+        wss.getClient(client).send(data)
+    } catch (error) {
+        next(error)
+    }
+})
+
+wss.getSockServer().on('connection',(sockClient)=>{
+    sockClient.on("message",(request)=>{
+        let message = JSON.parse(request)
+        switch(message["req"]){
+            case "ADD_CLI" : wss.update_clients(message['name'],sockClient) // {"req":"ADD_CLI","name":"xyz"}
+            break;
+            default : console.log(`Unrecognized command: ${message["req"]}`)
+        }
+    })
+})
 
 //app.use() Error handler
 
